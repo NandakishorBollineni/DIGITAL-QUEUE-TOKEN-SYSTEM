@@ -528,23 +528,47 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 100;
   padding: 20px;
 }
 
 .modal-content {
-  background: var(--surface);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: var(--radius-xl);
-  max-width: 480px;
+  max-width: 520px;
   width: 100%;
-  padding: 28px;
-  box-shadow: var(--shadow-xl);
-  animation: modal-enter 0.2s ease-out;
+  padding: 30px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.28);
+  animation: modal-enter 0.22s ease-out;
+  position: relative;
+}
+
+.demo-account-card {
+  border: 1.5px solid var(--slate-200);
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.demo-account-card:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.demo-account-card.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 0 1px var(--primary);
 }
 
 @keyframes modal-enter {
