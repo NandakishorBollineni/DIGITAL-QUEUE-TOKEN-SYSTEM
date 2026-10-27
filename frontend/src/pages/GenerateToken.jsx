@@ -10,8 +10,8 @@ const SERVICES = [
   { id: 'Document Verification', title: 'Document Verification', desc: 'Certificates, degrees, ID check, attestations' }
 ];
 
-export default function GenerateToken({ addToast, setActiveTab }) {
-  const [visitorName, setVisitorName] = useState('');
+export default function GenerateToken({ addToast, setActiveTab, currentUser }) {
+  const [visitorName, setVisitorName] = useState(currentUser?.name || '');
   const [service, setService] = useState('Admissions');
   const [loading, setLoading] = useState(false);
   const [issuedToken, setIssuedToken] = useState(null);

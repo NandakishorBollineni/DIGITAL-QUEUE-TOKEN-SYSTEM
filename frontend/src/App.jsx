@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import AuthModal from './components/AuthModal';
 import Toast from './components/Toast';
 import Dashboard from './pages/Dashboard';
 import GenerateToken from './pages/GenerateToken';
@@ -15,12 +16,59 @@ export default function App() {
   const [isDbConnected, setIsDbConnected] = useState(false);
   const [toasts, setToasts] = useState([]);
 
+  // Auth User State (persisted in localStorage)
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('digital_queue_user');
+      return saved ? JSON.parse(saved) : {
+        name: 'Bollineni Nanda Kishor',
+        email: 'nanda.kishor@lpu.in',
+        role: 'Staff Operator'
+      };
+    } catch {
+      return null;
+    }
+  });
+
+  const [authModal, setAuthModal] = useState({
+    isOpen: false,
+    mode: 'signin'
+  });
+
   const addToast = (message, type = 'info') => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
+  };
+
+  const handleOpenAuth = (mode = 'signin') => {
+    setAuthModal({ isOpen: true, mode });
+  };
+
+  const handleCloseAuth = () => {
+    setAuthModal((prev) => ({ ...prev, isOpen: false }));
+  };
+
+  const handleLoginSuccess = (user, message) => {
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('digital_queue_user', JSON.stringify(user));
+    } catch {
+      // ignore storage errors
+    }
+    addToast(message || `Welcome, ${user.name}!`, 'success');
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('digital_queue_user');
+    } catch {
+      // ignore
+    }
+    addToast('Signed out successfully', 'info');
   };
 
   const checkHealth = async () => {
@@ -40,38 +88,32 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Academic Banner */}
-      <div className="academic-banner">
-        <span><strong>Course:</strong> CSE494 Intelligent NoSQL Databases</span>
-        <span>•</span>
-        <span><strong>Student:</strong> Bollineni Nanda Kishor (Reg No: 12321100, Roll: 11)</span>
-        <span>•</span>
-        <span><strong>Guide:</strong> Shaik Sana Begum</span>
-      </div>
-
-      {/* Navbar */}
+      {/* Navbar with Auth & MongoDB status */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isDbConnected={isDbConnected}
+        currentUser={currentUser}
+        onOpenAuth={handleOpenAuth}
+        onLogout={handleLogout}
       />
 
-      {/* Main Page View */}
+      {/* Main Page Content */}
       <main className="main-content">
         {activeTab === 'dashboard' && (
-          <Dashboard setActiveTab={setActiveTab} addToast={addToast} />
+          <Dashboard setActiveTab={setActiveTab} addToast={addToast} currentUser={currentUser} />
         )}
         {activeTab === 'generate' && (
-          <GenerateToken addToast={addToast} setActiveTab={setActiveTab} />
+          <GenerateToken addToast={addToast} setActiveTab={setActiveTab} currentUser={currentUser} />
         )}
         {activeTab === 'live' && (
-          <LiveQueue addToast={addToast} />
+          <LiveQueue addToast={addToast} currentUser={currentUser} />
         )}
         {activeTab === 'track' && (
           <TrackToken addToast={addToast} />
         )}
         {activeTab === 'staff' && (
-          <StaffQueue addToast={addToast} />
+          <StaffQueue addToast={addToast} currentUser={currentUser} onOpenAuth={handleOpenAuth} />
         )}
         {activeTab === 'analytics' && (
           <Analytics addToast={addToast} />
@@ -81,16 +123,24 @@ export default function App() {
         )}
       </main>
 
+      {/* Auth Modal (Sign In / Sign Up Demo) */}
+      <AuthModal
+        isOpen={authModal.isOpen}
+        initialMode={authModal.mode}
+        onClose={handleCloseAuth}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
       {/* Toasts */}
       <Toast toasts={toasts} />
 
       {/* Footer */}
       <footer className="footer">
         <div>
-          <strong>Digital Queue Token System</strong> — Intelligent NoSQL Database Project
+          <strong>Digital Queue Token System</strong> — Intelligent NoSQL Database Platform
         </div>
         <div style={{ marginTop: 6, fontSize: '0.8rem', color: 'var(--slate-400)' }}>
-          Lovely Professional University · Academic Year 2026–2027 · MongoDB Compass: <code>mongodb://127.0.0.1:27017/digital_queue</code>
+          MongoDB Compass: <code>mongodb://127.0.0.1:27017/digital_queue</code>
         </div>
       </footer>
     </div>
